@@ -1,12 +1,5 @@
 export default {
 	target: 'static',
-	components: {
-		dirs: [
-			'@/components/Atoms',
-			'@/components/Molecules',
-			'@/components/Organisms',
-		]
-	},
     server: {
 		port: 8000 // default: 3000
 	},

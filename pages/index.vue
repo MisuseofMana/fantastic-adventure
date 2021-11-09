@@ -1,34 +1,22 @@
 <template>
-    <div class="flexRow">
-        <div class="mr-2"> 
-            <div>
-                <img height="32" width="32" v-for="stat in stats" :key="stat" :src="require(`@/assets/images/${stat}.png`)" :alt="stat"/>
-            </div>
-            <div>
-                <img height="64" width="64" v-for="item in classes" :key="item" :src="require(`@/assets/images/${item}.jpg`)" :alt="item"/>
-            </div>
-            <div class="card" v-for="character in playerCharacters" :key="character.name">
-                <h2>{{ sentenceCase(character.name) }}</h2>
-                <div class="flexRow">
-                    <img class="mr-2" height="80" width="80"  :src="require(`@/assets/images/${character.name}.jpg`)" :alt="character.name"/>
-                    <div class="flexRow flexWrap">
-                        <div class="flexRow mr-2 mb-2" v-for="stat in stats" :key="stat">
-                            <img class="mr-1" height="32" width="32" :src="require(`@/assets/images/${stat}.png`)" :alt="stat"/>
-                            <div class="statText">
-                                {{ character.stats[stat] }}
-                            </div>
-                        </div>
-                    </div>
+<div class="fullscreen">
+    <div class="card">
+        <transition>
+            <div class="flexRow" v-for="(row, rowIndex) in gameGrid" :key="`gridCol${rowIndex}`">
+                <div
+                    class="gridBox flexColumn" 
+                    v-for="(col, colIndex) in gameGrid[rowIndex]" 
+                    :key="`gridRow${colIndex}`" 
+                    :class="[ col.acceptableMovement ? 'availableSquare' : 'dormantSquare', col.activeSquare ? 'activeSquare' : '']"
+                    @click="checkMovement(rowIndex, colIndex)"
+                >
+                    <img v-if="col.icon" height="40" width="40" :src="require(`@/assets/images/${col.icon}.png`)" :alt="col.icon"/>
+                    <div class="tinyText">{{ col.location }}</div>
                 </div>
             </div>
-        </div>
-
-        <div v-for="(row, index) in gameGrid" :key="`gridRow${index}`">
-            <div class="gridBox flexColumn" :class="column.acceptableMovement ? 'availableSquare' : 'dormantSquare'" v-for="(column, innerIndex) in gameGrid[index]" :key="`grid${innerIndex}`" @click="checkMovement(innerIndex, index)">
-                <img v-if="column.icon" height="48" width="48" :src="require(`@/assets/images/${column.icon}.png`)" :alt="column.icon"/>
-            </div>
-        </div>
+        </transition>
     </div>
+</div>
 </template>
 
 <script>
@@ -36,98 +24,38 @@ export default {
     data(){
         return {
             gridRows: 2,
-            gridColumns: 4,
+            gridColumns: 2,
             gameGrid: [],
-            activeSquare: [],
             stats: [
+                '',
                 'health',
-                'attack',
-                'armor',
+                // 'attack',
+                // 'armor',
                 // 'magic',
                 // 'ward',
                 // 'faith',
                 // 'speed',
                 // 'mettle'
             ],
-            classes: [
-                'cleric',
-                'mage',
-                'varlet',
-                'witch'
-           ],
-           playerCharacters: {
-               witch: {
-                   name: 'witch',
-                    stats: {
-                        health: 28,
-                        attack: 5,
-                        armor: 3,
-                        magic: 14,
-                        ward: 8,
-                        faith: 1,
-                        speed: 5,
-                        mettle: 1,
-                    }
-                },
-                cleric: {
-                   name: 'cleric',
-                    stats: {
-                        health: 40,
-                        attack: 11,
-                        armor: 10,
-                        magic: 1,
-                        ward: 2,
-                        faith: 11,
-                        speed: 4,
-                        mettle: 1,
-
-                    }
-                },
-                varlet: {
-                   name: 'varlet',
-                    stats: {
-                        health: 31,
-                        attack: 20,
-                        armor: 3,
-                        magic: 1,
-                        ward: 1,
-                        faith: 5,
-                        speed: 6,
-                        mettle: 1,
-                    }
-                },
-                mage: {
-                   name: 'mage',
-                    stats: {
-                        health:34,
-                        attack: 3,
-                        armor: 5,
-                        magic: 17,
-                        ward: 5,
-                        faith: 10,
-                        speed: 5,
-                        mettle: 1,
-                    }
-                }
-            }   
         }
     },
     methods: {
         rollTable() {
             let gameGridArray = []
-            for(let i = 0; i < this.gridColumns; i++) {
+            for(let row = 0; row < this.gridRows; row++) {
                 gameGridArray.push([])
-                for(let ii = 0; ii < this.gridRows; ii++) {
-                    gameGridArray[i].push(
+                for(let column = 0; column < this.gridColumns; column++) {
+                    gameGridArray[row].push(
                         {
-                            location: `Col ${i + 1}, Row ${ii + 1}`,
+                            rowIndex: row,
+                            columnIndex: column,
                             icon: this.stats[this.randomNumber(this.stats.length)],
                             acceptableMovement: false,
                             activeSquare: false,
                         }
                     )
                 }
-            }           
+            }       
             this.gameGrid = gameGridArray
         },
         sentenceCase(stringInput) {
@@ -137,106 +65,60 @@ export default {
             return Math.floor(Math.random()*max)
         },
         checkMovement(row, column){
-            // if an inactive square is clicked 
-            if(this.gameGrid[column][row].acceptableMovement === false){
-                if (row === this.activeSquare[0] && column === this.activeSquare[1]) {
-                    this.resetIcons()
-                }
-                else {
-                    //set it to the activre square
-                this.activeSquare = [column, row]
-                // hilite available movements
-                this.setAvailableLocations(row, column)
-                }
-            }
-            else if(this.gameGrid[column][row].acceptableMovement === true){
-                const fromSquareRow = this.activeSquare[0]
-                const fromSquareColumn = this.activeSquare[1]
-                const replacedSquareIcon = this.gameGrid[fromSquareColumn][fromSquareRow].icon
-                this.gameGrid[fromSquareColumn][fromSquareRow].icon = this.gameGrid[column][row].icon
-                this.gameGrid[column][row].icon = replacedSquareIcon
+            const clickedSquare = this.gameGrid[row][column]
+            const squareIsActive = clickedSquare.activeSquare
+            const acceptableMovement = clickedSquare.acceptableMovement
+            // a player clicks an already active square, just reset all board indicators
+            if (squareIsActive) {
                 this.resetIcons()
             }
-            else {
+            // a non-active square is clicked and is not currently an acceptable movement option
+            // reset the board indicators, hilight a new active square, add new movement indicators
+            else if (!squareIsActive && !acceptableMovement){
+                this.resetIcons()
+                this.gameGrid[row][column].activeSquare = true
+                this.setAvailableLocations(row, column)
+            }
+            // a square is clicked and is acceptable to be moved to
+            // swap the icons between the active and clicked squares
+            else if(acceptableMovement) {
+                this.swapIcons(clickedSquare)
                 this.resetIcons()
             }
         },
+        swapIcons(clickedSquare) {
+            this.gameGrid.forEach(row => {
+                row.forEach(column => {
+                    if(column.activeSquare) {
+                        const activeIcon = column.icon
+                        column.icon = clickedSquare.icon
+                        this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex].icon = activeIcon
+                    }
+                })
+            })
+        },
         setAvailableLocations(row, column) {
-            // if top left clicked
-            if(row === 0) {
-                if(column === 0) {
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row + 1].acceptableMovement = true
-                }
-                // top mid clicked
-                else if(column > 0 && column < this.gridColumns - 1) {
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row + 1].acceptableMovement = true
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row + 1].acceptableMovement = true
-                }
-                else if(column === this.gridColumns - 1) {
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row + 1].acceptableMovement = true
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                }
-            }
-            if(row > 0 && row < this.gridRows - 1) {
-                if (column === 0) {
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row + 1].acceptableMovement = true
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                }
-                else if(column > 0 && column < this.gridColumns - 1) {
-                    this.gameGrid[column - 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row + 1].acceptableMovement = true
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row + 1].acceptableMovement = true
-                }
-                else if(column === this.gridColumns - 1) {
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                    this.gameGrid[column - 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row + 1].acceptableMovement = true
-                    this.gameGrid[column][row + 1].acceptableMovement = true
-                }
-            }
-            if(row === this.gridRows - 1) {
-                if(column === 0) {
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row - 1].acceptableMovement = true
-                }
-                // top mid clicked
-                else if(column > 0 && column < this.gridColumns - 1) {
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column + 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                    this.gameGrid[column + 1][row - 1].acceptableMovement = true
-                }
-                else if(column === this.gridColumns - 1) {
-                    this.gameGrid[column - 1][row].acceptableMovement = true
-                    this.gameGrid[column - 1][row - 1].acceptableMovement = true
-                    this.gameGrid[column][row - 1].acceptableMovement = true
-                }
+            this.validateSquare(row - 1, column - 1)
+            this.validateSquare(row - 1, column)
+            this.validateSquare(row - 1, column + 1)
+            this.validateSquare(row, column - 1)
+            this.validateSquare(row, column + 1)
+            this.validateSquare(row + 1, column - 1)
+            this.validateSquare(row + 1, column)
+            this.validateSquare(row + 1, column + 1)
+        },
+        validateSquare(row, column) {
+            if((row >= 0 && row < this.gridRows) && (column >= 0 && column < this.gridColumns)) {
+                this.gameGrid[row][column].acceptableMovement = true
             }
         },
         resetIcons() {
-            this.gameGrid.forEach(column => {
-                column.forEach(row => {
-                    row.acceptableMovement = false;
+            this.gameGrid.forEach(row => {
+                row.forEach(col => {
+                    col.acceptableMovement = false;
+                    col.activeSquare = false
                 })
             })
-            this.activeSquare = []
         }
     },
     mounted() {
@@ -245,7 +127,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .flexColumn {
     display:flex;
     flex-direction: column;
@@ -277,23 +159,60 @@ export default {
 }
 
 .card {
-    width:400px;
-    padding:0 .5rem;
-    box-shadow: 1px 1px 5px grey;
+    padding:2rem 2rem;
+    border-radius:5px;
+    box-shadow: 1px 1px 5px black;
+    background:rgb(85, 85, 85);
 }
+
 .gridBox {
-    width:64px;
-    height:64px;
+    width:48px;
+    height:48px;
     margin-right:3px;
     margin-bottom: 3px;
-    box-shadow: 1px 1px 5px grey;
+    box-shadow: 1px 1px 5px black;
+    border-radius:5px;
 }
 
 .availableSquare {
-    background:greenyellow;
+    background:rgb(72, 212, 255);
+    transition: all .2s linear;
+}
+.availableSquare:hover {
+    background:rgb(72, 255, 72);
+    cursor: pointer;
+    transition: all .2s linear;
 }
 
 .dormantSquare {
-    background:white;
+    background:rgb(129, 129, 129);
+    transition: all .2s linear;
+}
+.dormantSquare:hover {
+    background:gold;
+    cursor: pointer;
+}
+.activeSquare {
+    background:gold;
+}
+.activeSquare:hover {
+    background:rgb(189, 41, 41);
+}
+.fullscreen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin:0;
+    padding:0;
+    background:rgb(48, 48, 48);
+}
+body {
+    margin:0;
+}
+.tinyText {
+    font-size:.5rem;
+    color:white;
 }
 </style>
