@@ -1,7 +1,6 @@
 <template>
 <div class="fullscreen">
     <div class="card">
-        <transition>
             <div class="flexRow" v-for="(row, rowIndex) in gameGrid" :key="`gridCol${rowIndex}`">
                 <div
                     class="gridBox flexColumn" 
@@ -14,7 +13,6 @@
                     <div class="tinyText">{{ col.location }}</div>
                 </div>
             </div>
-        </transition>
     </div>
 </div>
 </template>
@@ -23,19 +21,19 @@
 export default {
     data(){
         return {
-            gridRows: 2,
-            gridColumns: 2,
+            gridRows: 10,
+            gridColumns: 10,
             gameGrid: [],
             stats: [
                 '',
                 'health',
-                // 'attack',
-                // 'armor',
-                // 'magic',
-                // 'ward',
-                // 'faith',
-                // 'speed',
-                // 'mettle'
+                'attack',
+                'armor',
+                'magic',
+                'ward',
+                'faith',
+                'speed',
+                'mettle'
             ],
         }
     },
@@ -49,6 +47,7 @@ export default {
                         {
                             rowIndex: row,
                             columnIndex: column,
+                            movementPattern:[[0,1], [1,0], [1,1]],
                             icon: this.stats[this.randomNumber(this.stats.length)],
                             acceptableMovement: false,
                             activeSquare: false,
@@ -66,6 +65,7 @@ export default {
         },
         checkMovement(row, column){
             const clickedSquare = this.gameGrid[row][column]
+            const movementPattern = clickedSquare.movementPattern
             const squareIsActive = clickedSquare.activeSquare
             const acceptableMovement = clickedSquare.acceptableMovement
             // a player clicks an already active square, just reset all board indicators
@@ -77,7 +77,7 @@ export default {
             else if (!squareIsActive && !acceptableMovement){
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
-                this.setAvailableLocations(row, column)
+                this.setAvailableLocations(movementPattern)
             }
             // a square is clicked and is acceptable to be moved to
             // swap the icons between the active and clicked squares
@@ -97,19 +97,15 @@ export default {
                 })
             })
         },
-        setAvailableLocations(row, column) {
-            this.validateSquare(row - 1, column - 1)
-            this.validateSquare(row - 1, column)
-            this.validateSquare(row - 1, column + 1)
-            this.validateSquare(row, column - 1)
-            this.validateSquare(row, column + 1)
-            this.validateSquare(row + 1, column - 1)
-            this.validateSquare(row + 1, column)
-            this.validateSquare(row + 1, column + 1)
+        setAvailableLocations(movementPattern) {
+            movementPattern.forEach(direction => {
+                this.validateSquare(direction[0], direction[1])
+            })
         },
         validateSquare(row, column) {
             if((row >= 0 && row < this.gridRows) && (column >= 0 && column < this.gridColumns)) {
-                this.gameGrid[row][column].acceptableMovement = true
+                for(let i = -row; i )
+                    this.gameGrid[row][column].acceptableMovement = true
             }
         },
         resetIcons() {
@@ -138,10 +134,7 @@ export default {
     display:flex;
     flex-direction: row;
     align-items: center;
-    justify-content:start;
-}
-.flexWrap {
-    flex-wrap:wrap;
+    justify-content: flex-start;
 }
 
 .mr-1 {
@@ -176,17 +169,17 @@ export default {
 
 .availableSquare {
     background:rgb(72, 212, 255);
-    transition: all .2s linear;
+    transition: all .1s linear;
 }
 .availableSquare:hover {
     background:rgb(72, 255, 72);
     cursor: pointer;
-    transition: all .2s linear;
+    transition: all .1s linear;
 }
 
 .dormantSquare {
     background:rgb(129, 129, 129);
-    transition: all .2s linear;
+    transition: all .1s linear;
 }
 .dormantSquare:hover {
     background:gold;
