@@ -1,67 +1,80 @@
 <template>
-<div class="fullscreen flexColumn">
-    <div class="flexRow">
-        <div class="mr-2 mt-2 p-2 flexColumn">
-            <h2>{{ playerOne }}</h2>
-            <h3> IT'S YOUR TURN </h3>
-            <div>
-            <p class="mb-2">Please choose your team.</p>
-            
-            <div class="flexColumn cardButton mb-2" v-for="(collection, index) in bugCollections" :key="'bugCollection' + index">
-                <p class="mr-1">{{collection.teamName}}</p>
-                <div class="flexRow mb-2">
-                    <div v-for="(bug, index) in  collection.roster" :key="'typeOfBug' + index" class="gridBox mr-1">
-                        <img height="40" width="40" :src="require(`@/assets/images/bugs/${bug}.gif`)" :alt="bug"/>
-                    </div>
-                </div>
-            </div>
-            </div>
-            <p>You have {{ playerMoves }} moves left.</p>
-        </div>
+<v-app>
+    <v-container>
+        <v-main>
+            <v-row justify="center" class="text-center">
+                <v-col cols="12">
+                    <h1>CRITTER CRAWL</h1>
+                </v-col>
+            </v-row>
 
-        <div class="flexColumn">
-            <div>
-                <h1>CRITTER CRAWL</h1> 
-            </div>
-            <div class="card mr-2">
-                <div class="flexRow" v-for="(row, rowIndex) in gameGrid" :key="`gridCol${rowIndex}`">
-                    <div
-                        class="gridBox flexColumn pointer" 
-                        v-for="(col, colIndex) in gameGrid[rowIndex]" 
-                        :key="`gridRow${colIndex}`" 
-                        :class="[ col.name === '' ? 'cantClick' : 'canClick', col.acceptableMovement ? 'availableSquare' : '', col.activeSquare ? 'activeSquare' : '', col.acceptableAttack ? 'attackSquare' : '' ]"
-                        @click="checkMovement(rowIndex, colIndex)"
-                    >
-                        <img v-if="(col.name !== '' && !col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.png`)" :alt="col.name"/>
-                        <img v-if="(col.name !== '' && col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.gif`)" :alt="col.name"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mt-2 p-2">
-            <h2>{{ playerTwo }}</h2>
-        </div>
-    </div>
-
-    <div class="flexRow">
-        
-    </div>
-</div>
+            <v-row no-gutters>
+                <v-spacer></v-spacer>
+                <v-col cols="1" class="d-flex justify-end">
+                    <PlayerReadout
+                        :playerName="playerOne.name"
+                        :yourTurn="playerOne.activeTurn"
+                        :chooseTeam="playerOne.isChoosingTeam"
+                        :playerMoves="playerOne.movesLeft"
+                        :teamComposition="playerOne.selectedTeam"
+                        @picked-team="setTeam($event)"
+                    />
+                </v-col>
+                <v-col cols="8">
+                        <v-row align="center" justify="center" v-for="(row, rowIndex) in gameGrid" :key="`gridCol${rowIndex}`" no-gutters class="align-center">
+                            <v-col
+                                v-for="(col, colIndex) in gameGrid[rowIndex]" 
+                                :key="`gridRow${colIndex}`" 
+                                @click="checkMovement(rowIndex, colIndex)"
+                            >
+                                <v-card 
+                                :color="squareColor(col)"
+                                height="42" width="42" :hover="canHover(col)" outlined class="margin-1px"
+                                >
+                                    <img v-if="(col.name !== '' && !col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.png`)" :alt="col.name"/>
+                                    <img v-if="(col.name !== '' && col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.gif`)" :alt="col.name"/>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                </v-col>
+                <v-col cols="1">
+                    <PlayerReadout
+                        :playerName="playerTwo.name"
+                        :yourTurn="playerTwo.activeTurn"
+                        :chooseTeam="playerTwo.isChoosingTeam"
+                        :playerMoves="playerTwo.movesLeft"
+                        :teamComposition="playerTwo.selectedTeam"
+                    />
+                </v-col>
+                <v-spacer></v-spacer>
+            </v-row>
+        </v-main>
+    </v-container>
+</v-app>
 </template>
 
 <script>
 import { smallBugs } from '@/bugTypes/smallBugs.js'
 import { mediumBugs } from '@/bugTypes/mediumBugs.js'
 import { bigBugs } from '@/bugTypes/bigBugs.js'
-import { bugCollections } from '@/bugTypesw/bugCollections.js'
 
 export default {
     data(){
         return {
-            playerOne: 'Bugboy',
-            playerTwo: 'King Cricket',
-            bugCollections,
-            playerMoves: 3,
+            playerOne: {
+                name: 'Bugboy',
+                activeTurn: true,
+                isChoosingTeam: true,
+                movesLeft: 5,
+                selectedTeam: null,
+            },
+            playerTwo: {
+                name: 'King Cricket',
+                activeTurn: false,
+                isChoosingTeam: false,
+                movesLeft: 0,
+                selectedTeam: null,
+            },
             boardSize:15,
             gameGrid: [],
             registeredSquare:[],
@@ -85,6 +98,23 @@ export default {
         }
     },
     methods: {
+        setTeam(event){
+            console.log()
+        },
+        squareColor(square){
+            if(square.acceptableMovement) return '#09f'
+            else if(square.activeSquare) return '#fd3'
+            else if(square.acceptableAttack) return '#f46'
+            else if(square.name === '') return '#ddd'
+            else if (square.name) return '#fff'
+        },
+        canHover(square) {
+            if(square.acceptableMovement) return true
+            else if(square.activeSquare) return true
+            else if(square.acceptableAttack) return true
+            else if(square.name === '') return false
+            else if (square.name) return true
+        },
         rollTable() {
             let gameGridArray = []
             for(let row = 0; row < this.boardSize; row++) {
@@ -102,6 +132,8 @@ export default {
                                 name: bugName,
                                 acceptableMovement: false,
                                 acceptableAttack: false,
+                                movementCost: this.allBugs[bugName]?.movementCost || null,
+                                attackCost: this.allBugs[bugName]?.attackCost || null
                             }
                         )
                     }
@@ -130,16 +162,20 @@ export default {
         },
         checkMovement(row, column){
             const clickedSquare = this.gameGrid[row][column]
-            const { movementPattern, attackPattern, activeSquare, acceptableMovement, acceptableAttack, name } = clickedSquare
+            const { movementPattern, attackPattern, activeSquare, acceptableMovement, acceptableAttack, name, movementCost, attackCost } = clickedSquare
             // a non-active square is clicked and is not currently an acceptable movement or attack option
             // it is also not an empty square, (it has a name and living bug)
             // reset the board indicators, hilight a new active square, add new movement indicators
-            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== ''){
+            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '' && (this.currentPlayer.movesLeft >= movementCost || this.currentPlayer.movesLeft >= attackCost)){
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
                 this.registeredSquare = [row, column]
-                this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
-                this.findAvailableAttackLocations(attackPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
+                if(this.currentPlayer.movesLeft >= movementCost) {
+                    this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
+                }
+                if(this.currentPlayer.movesLeft >= attackCost){
+                    this.findAvailableAttackLocations(attackPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
+                }
             }
             // a player clicks an already active square, just reset all board indicators
             else if (activeSquare) {
@@ -148,23 +184,57 @@ export default {
             // a square is clicked and is acceptable to be moved to
             // swap the icons between the active and clicked squares
             else if(acceptableMovement) {
-                this.swapIcons(clickedSquare)
-                this.resetIcons()
+                this.moveSquare(clickedSquare)
             }
             else if(acceptableAttack) {
                 this.squashBug()
                 this.resetIcons()
             }
         },
-        swapIcons(clickedSquare) {
-            const fromIcon = this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]]
-            column.name = clickedSquare.name
-            this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex].name = activeIcon
+        moveSquare(clickedSquare) {
+            this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex] = {
+                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
+                rowIndex: clickedSquare.rowIndex,
+                columnIndex: clickedSquare.columnIndex
+            }
+            this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]] = {
+                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
+                movementPattern: null,
+                attackPattern: null,
+                name: '',
+                acceptableMovement: false,
+                acceptableAttack: false,
+            }
+            this.useMovement(this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]].movementCost)
+            this.resetIcons()
         },
         squashBug(clickedSquare) {
-            const activeIcon = this.registeredSquareName
-            clickedSquare.name = ''
-            this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex].name = activeIcon
+            this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex] = {
+                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
+                rowIndex: clickedSquare.rowIndex,
+                columnIndex: clickedSquare.columnIndex
+            }
+            this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]] = {
+                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
+                movementPattern: null,
+                attackPattern: null,
+                name: '',
+                acceptableMovement: false,
+                acceptableAttack: false,
+            }
+            this.useMovement(this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]].attackCost)
+            this.resetIcons()
+        },
+        useMovement(cost){
+            this.currentPlayer.movesLeft -= cost
+        },
+        findAvailableMovementLocations(movementPattern, row, column) {
+            let locationsToActivate = this.findLocations(movementPattern, row, column)
+            this.setMovementSquares(locationsToActivate, row, column)
+        },
+        findAvailableAttackLocations(attackPattern, row, column) {
+            let locationsToActivate = this.findLocations(attackPattern, row, column)
+            this.setAttackSquares(locationsToActivate, row, column)
         },
         findLocations(array, row, column) {
             let locationsToActivate = []
@@ -177,14 +247,6 @@ export default {
                 }
             })
             return locationsToActivate
-        },
-        findAvailableMovementLocations(movementPattern, row, column) {
-            let locationsToActivate = this.findLocations(movementPattern, row, column)
-            this.setMovementSquares(locationsToActivate)
-        },
-        findAvailableAttackLocations(attackPattern, row, column) {
-            let locationsToActivate = this.findLocations(attackPattern, row, column)
-            this.setAttackSquares(locationsToActivate)
         },
         setMovementSquares(locationsToActivate) {
             locationsToActivate.forEach(pair => {
@@ -212,6 +274,10 @@ export default {
     computed: {
         allBugs() {
             return {...smallBugs, ...mediumBugs, ...bigBugs }
+        },
+        currentPlayer() {
+            if (this.playerOne.activeTurn) return this.playerOne
+            else return this.playerTwo
         }
     },
     mounted() {
@@ -221,116 +287,10 @@ export default {
 </script>
 
 <style>
-.fullscreen {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: start;
-    justify-content: center;
-    margin:0;
-    padding:0;
-    background:rgb(48, 48, 48);
+.col {
+    flex-grow: 0;
 }
-.flexColumn {
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content:flex-start;
-}
-.flexRow {
-    display:flex;
-    flex-direction: row;
-    align-items: start;
-    justify-content: flex-start;
-}
-
-.mr-1 {
-    margin-right:.5rem;
-}
-.mr-2{ 
-    margin-right:1rem;
-}
-.mb-2{
-    margin-bottom:1rem;
-}
-.mt-2 {
-    margin-top:2rem;
-}
-.p-2 {
-    padding:2rem;
-}
-.statText {
-    font-size: 1.5rem;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-.card {
-    padding:2rem 2rem;
-    border-radius:5px;
-    box-shadow: 1px 1px 5px black;
-    background: rgb(192, 192, 192);
-}
-.cardButton {
-    padding:1rem 1rem;
-    border-radius:5px;
-    box-shadow: 1px 1px 5px black;
-    background: rgb(138, 138, 138);
-}
-.cardButton:hover {
-    background: rgb(173, 233, 171);
-    color:black;
-    cursor:pointer;
-}
-.gridBox {
-    width:40px;
-    height:40px;
-    box-shadow: 1px 1px 3px black;
-    border-radius:5px;
-    transition: all .1s linear;
-    background:rgb(214, 214, 214);
-}
-
-.cantClick {
-    background:rgb(156, 156, 156);
-}
-.cantClick:hover {
-    cursor: not-allowed;
-}
-
-.availableSquare {
-    background:rgb(72, 212, 255);
-    transition: all .1s linear;
-}
-.availableSquare:hover {
-    background:rgb(72, 255, 72);
-    cursor: pointer;
-    transition: all .1s linear;
-}
-.activeSquare {
-    background:gold;
-}
-.activeSquare:hover, .canClick:hover {
-    background:gold;
-    color:white
-}
-.attackSquare {
-    background:rgb(255, 0, 0)
-}
-.attackSquare:hover {
-    background:darkred;
-}
-body {
-    margin:0;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    color:white;
-}
-.pointer {
-    cursor:pointer;
-}
-.text-center {
-    text-align: center;
-}
-h3, h2, p {
-    margin:0;
-    margin-bottom:.5rem;
+.margin-1px {
+    margin:1px;
 }
 </style>

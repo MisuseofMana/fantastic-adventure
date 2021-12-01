@@ -3,6 +3,7 @@ export default {
     server: {
 		port: 8000 // default: 3000
 	},
+	components: true,
 	head: {
 		title: 'Fantastic Adventure',
 		htmlAttrs: {
@@ -15,4 +16,7 @@ export default {
 			{rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Frijole|Oswald&display=swap'}
 		]
 	},
+	buildModules: [
+		'@nuxtjs/vuetify',
+	  ]
 }
