@@ -140,15 +140,12 @@ export default {
             // a non-active square is clicked and is not currently an acceptable movement or attack option
             // it is also not an empty square, (it has a name and living bug)
             // reset the board indicators, hilight a new active square, add new movement indicators
-            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '' && (this.currentPlayer.movesLeft >= movementCost || this.currentPlayer.movesLeft >= attackCost)) {
+            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '') {
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
                 this.registeredSquare = [row, column]
                 if (this.currentPlayer.movesLeft >= movementCost) {
                     this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
-                }
-                if (this.currentPlayer.movesLeft >= attackCost) {
-                    this.findAvailableAttackLocations(attackPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
                 }
             }
             // a player clicks an already active square, just reset all board indicators
