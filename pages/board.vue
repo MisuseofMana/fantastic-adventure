@@ -54,26 +54,21 @@
 </template>
 
 <script>
-import { smallBugs } from '@/bugTypes/smallBugs.js'
-import { mediumBugs } from '@/bugTypes/mediumBugs.js'
-import { bigBugs } from '@/bugTypes/bigBugs.js'
+import all from '@/bugTypes/all.js'
 
 export default {
     data(){
         return {
+            all,
             playerOne: {
-                name: 'Bugboy',
+                name: 'Buggy',
                 activeTurn: true,
-                isChoosingTeam: true,
                 movesLeft: 5,
-                selectedTeam: null,
             },
             playerTwo: {
                 name: 'King Cricket',
                 activeTurn: false,
-                isChoosingTeam: false,
                 movesLeft: 0,
-                selectedTeam: null,
             },
             boardSize:15,
             gameGrid: [],
@@ -88,18 +83,9 @@ export default {
                 'mantis',
                 'dragonfly',
             ],
-            symbols: {
-                grub: 'G',
-                ant: 'A',
-                worm: 'W',
-                caterpillar: "C"
-            }
         }
     },
     methods: {
-        setTeam(event){
-            console.log()
-        },
         squareColor(square){
             if(square.acceptableMovement) return '#09f'
             else if(square.activeSquare) return '#fd3'
@@ -126,13 +112,13 @@ export default {
                             {
                                 rowIndex: row,
                                 columnIndex: column,
-                                movementPattern:this.allBugs[bugName]?.movementPattern || null,
-                                attackPattern:this.allBugs[bugName]?.attackPattern || null,
+                                movementPattern:this.all[bugName]?.movementPattern || null,
+                                attackPattern:this.all[bugName]?.attackPattern || null,
                                 name: bugName,
                                 acceptableMovement: false,
                                 acceptableAttack: false,
-                                movementCost: this.allBugs[bugName]?.movementCost || null,
-                                attackCost: this.allBugs[bugName]?.attackCost || null
+                                movementCost: this.all[bugName]?.movementCost || null,
+                                attackCost: this.all[bugName]?.attackCost || null
                             }
                         )
                     }
@@ -271,9 +257,6 @@ export default {
         },
     },
     computed: {
-        allBugs() {
-            return {...smallBugs, ...mediumBugs, ...bigBugs }
-        },
         currentPlayer() {
             if (this.playerOne.activeTurn) return this.playerOne
             else return this.playerTwo
