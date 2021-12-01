@@ -1,3 +1,3 @@
 <template>
-    <div>Player X wins</div>
-</template>
+    <div>{{$route.query.player}} wins</div>
+</template>     
