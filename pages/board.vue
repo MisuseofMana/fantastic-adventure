@@ -26,7 +26,7 @@
                             <v-col
                                 v-for="(col, colIndex) in gameGrid[rowIndex]"
                                 :key="`gridRow${colIndex}`"
-                                @click="checkMovement(rowIndex, colIndex)"
+                                @click="handleCellClick(rowIndex, colIndex)"
                             >
                                 <v-card
                                     :color="squareColor(col)"
@@ -85,6 +85,7 @@ export default {
                 'mantis',
                 'dragonfly',
             ],
+            pieceIsSelected: false,
         }
     },
     methods: {
@@ -108,12 +109,12 @@ export default {
                 return row.map((cell, columnIndex) => {
                     if (cell in all) {
                         const name = cell
-                        const { movementPattern, attackPattern } = all[name]
+                        const { movementPattern } = all[name]
                         return {
                             rowIndex,
                             columnIndex,
                             movementPattern,
-                            attackPattern,
+                            activeSquare: false,
                             name,
                             belongsTo: columnIndex > 7 ? 'player2' : 'player1',
                             acceptableMovement: false,
@@ -123,7 +124,7 @@ export default {
                             rowIndex,
                             columnIndex,
                             movementPattern: null,
-                            attackPattern: null,
+                            activeSquare: false,
                             name: '',
                             belongsTo: null,
                             acceptableMovement: false,
@@ -135,27 +136,28 @@ export default {
         randomNumber(max) {
             return Math.floor(Math.random() * max)
         },
-        checkMovement(row, column) {
+        handleCellClick(row, column) {
             const clickedSquare = this.gameGrid[row][column]
-            if(!(clickedSquare.belongsTo === null || clickedSquare.belongsTo === this.whosTurn)) return
-            const { movementPattern, activeSquare, acceptableMovement, acceptableAttack, name } = clickedSquare
-            // a non-active square is clicked and is not currently an acceptable movement or attack option
-            // it is also not an empty square, (it has a name and living bug)
-            // reset the board indicators, hilight a new active square, add new movement indicators
-            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '') {
+            const { movementPattern, activeSquare, acceptableMovement, name } = clickedSquare
+
+            if(!this.pieceIsSelected){
+                if (clickedSquare.belongsTo !== this.whosTurn) return
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
+                this.pieceIsSelected = true
                 this.registeredSquare = [row, column]
                 this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
             }
-            // a player clicks an already active square, just reset all board indicators
-            else if (activeSquare) {
-                this.resetIcons()
-            }
-            // a square is clicked and is acceptable to be moved to
-            // swap the icons between the active and clicked squares
-            else if (acceptableMovement) {
-                this.moveSquare(clickedSquare)
+            else {
+                // a player clicks an already active square, just reset all board indicators
+                if (activeSquare) {
+                    this.resetIcons()
+                }
+                // a square is clicked and is acceptable to be moved to
+                // swap the icons between the active and clicked squares
+                else if (acceptableMovement) {
+                    this.moveSquare(clickedSquare)
+                }
             }
         },
         moveSquare(clickedSquare) {
@@ -167,19 +169,26 @@ export default {
             this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]] = {
                 ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
                 movementPattern: null,
-                attackPattern: null,
                 name: '',
+                belongsTo: null,
                 acceptableMovement: false,
-                acceptableAttack: false,
             }
             this.resetIcons()
+
+            if(this.whosTurn === 'player1') {
+                this.whosTurn = 'player2'
+            }
+            else {
+                this.whosTurn = 'player1'
+            }
+
             this.checkBoard()
         },
         checkBoard() {
             const hasPlayer1 = this.gameGrid.some(row => row.some(cell => cell.belongsTo === 'player1'))
             const hasPlayer2 = this.gameGrid.some(row => row.some(cell => cell.belongsTo === 'player2'))
+            console.log(this.gameGrid)
             if (hasPlayer1 && hasPlayer2) {
-                console.log('still active')
                 return
             }
             else if (hasPlayer1) {
@@ -193,13 +202,6 @@ export default {
                     path: '/winner',
                     query: {player: "Player 2"},
                 })
-            }
-
-            if(this.whosTurn === 'player1') {
-                this.whosTurn = 'player2'
-            }
-            else {
-                this.whosTurn = 'player1'
             }
         },
         findAvailableMovementLocations(movementPattern, row, column) {
@@ -220,13 +222,14 @@ export default {
         },
         setMovementSquares(locationsToActivate) {
             locationsToActivate.forEach(pair => {
-                if (this.gameGrid[pair[0]]?.[pair[1]]?.name === '') {
+                if (this.gameGrid[pair[0]]?.[pair[1]]?.belongsTo !== this.whosTurn) {
                     this.gameGrid[pair[0]][pair[1]].acceptableMovement = true
                 }
             })
         },
         resetIcons() {
             this.registeredSquare = []
+            this.pieceIsSelected = false
             this.gameGrid.forEach(row => {
                 row.forEach(col => {
                     col.acceptableMovement = false
