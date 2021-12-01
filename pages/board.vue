@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import all from '@/bugTypes/all.js'
+import all, {boardSetup} from '@/bugTypes/all.js'
 
 export default {
     data(){
@@ -84,44 +84,34 @@ export default {
             else if(square.name === '') return false
             else if (square.name) return true
         },
-        rollTable() {
-            let gameGridArray = []
-            for(let row = 0; row < this.boardSize; row++) {
-                gameGridArray.push([])
-                for(let column = 0; column < this.boardSize; column++) {
-                    const randomSelection = this.randomNumber(this.bugs.length)
-                    const bugName = this.bugs[randomSelection]
-                    if(row % 3 === 1 && column % 2 === 1) {
-                        gameGridArray[row].push(
-                            {
-                                rowIndex: row,
-                                columnIndex: column,
-                                movementPattern:this.all[bugName]?.movementPattern || null,
-                                attackPattern:this.all[bugName]?.attackPattern || null,
-                                name: bugName,
-                                acceptableMovement: false,
-                                acceptableAttack: false,
-                                movementCost: this.all[bugName]?.movementCost || null,
-                                attackCost: this.all[bugName]?.attackCost || null
-                            }
-                        )
+        initializeBoard() {
+            this.gameGrid = boardSetup.map((row, rowIndex) => {
+                return row.map((cell, columnIndex) => {
+                    if (cell in all) {
+                        const name = cell
+                        const {movementPattern, attackPattern} = all[name]
+                        return {
+                            rowIndex,
+                            columnIndex,
+                            movementPattern,
+                            attackPattern,
+                            name,
+                            belongsTo: columnIndex > 7 ? 'player2' : 'player1',
+                            acceptableMovement: false,
+                        }
+                    } else {
+                        return {
+                            rowIndex,
+                            columnIndex,
+                            movementPattern: null,
+                            attackPattern: null,
+                            name: '',
+                            belongsTo: null,
+                            acceptableMovement: false,
+                        }
                     }
-                    else {
-                        gameGridArray[row].push(
-                            {
-                                rowIndex: row,
-                                columnIndex: column,
-                                movementPattern: null,
-                                attackPattern: null,
-                                name: '',
-                                acceptableMovement: false,
-                                acceptableAttack: false,
-                            }
-                        )
-                    }
-                }
-            }       
-            this.gameGrid = gameGridArray
+                })
+            })
         },
         sentenceCase(stringInput) {
             return stringInput[0].toUpperCase() + stringInput.slice(1)
@@ -247,7 +237,7 @@ export default {
         }
     },
     mounted() {
-        this.rollTable()
+        this.initializeBoard()
     },
 }
 </script>
