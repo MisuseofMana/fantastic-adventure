@@ -144,9 +144,7 @@ export default {
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
                 this.registeredSquare = [row, column]
-                if (this.currentPlayer.movesLeft >= movementCost) {
-                    this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
-                }
+                this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
             }
             // a player clicks an already active square, just reset all board indicators
             else if (activeSquare) {
@@ -192,7 +190,7 @@ export default {
         },
         setMovementSquares(locationsToActivate) {
             locationsToActivate.forEach(pair => {
-                if (this.gameGrid[pair[0]][pair[1]].name === '') {
+                if (this.gameGrid[pair[0]]?.[pair[1]]?.name === '') {
                     this.gameGrid[pair[0]][pair[1]].acceptableMovement = true
                 }
             })
