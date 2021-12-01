@@ -200,3 +200,23 @@ export default {
         ],
     },
 }
+
+export const boardSetup = [
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "dragonfly", null, "grub", null, null, null, null, null, "inchworm", null, "dragonfly", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "ant", null, "grub", null, null, null, null, null, "inchworm", null, "ant", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "ladybug", null, "grub", null, null, null, null, null, "inchworm", null, "mosquito", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "spider", null, "grub", null, null, null, null, null, "inchworm", null, "mantis", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "spider", null, "grub", null, null, null, null, null, "inchworm", null, "mantis", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "ladybug", null, "grub", null, null, null, null, null, "inchworm", null, "mosquito", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "ant", null, "grub", null, null, null, null, null, "inchworm", null, "ant", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, "dragonfly", null, "grub", null, null, null, null, null, "inchworm", null, "dragonfly", null],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null],
+]
