@@ -81,7 +81,6 @@ export default {
             bugs: [
                 'grub',
                 'ant',
-                'worm',
                 'inchworm',
                 'ladybug',
                 'mosquito',
