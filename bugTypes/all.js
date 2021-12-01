@@ -20,8 +20,6 @@ export default {
             [1, 0],
             [1, 1],
         ],
-        movementCost: 4,
-        attackCost: 4
     },
     mosquito: {
         movementPattern: [
@@ -44,8 +42,6 @@ export default {
             [1, 0],
             [2, 0],
         ],
-        movementCost: 4,
-        attackCost: 4
     },
     spider: {
         movementPattern: [
@@ -68,8 +64,6 @@ export default {
             [2, 1],
             [2, -1],
         ],
-        movementCost: 4,
-        attackCost: 4
     },
     mantis: {
         movementPattern: [
@@ -116,8 +110,6 @@ export default {
             [2, -3],
             [2, 3],
         ],
-        movementCost: 4,
-        attackCost: 4
     },
     dragonfly: {
         movementPattern: [
@@ -164,8 +156,6 @@ export default {
             [3, -3],
             [3, 3],
         ],
-        movementCost: 4,
-        attackCost: 4
     },
     grub: {
         movementPattern: [
@@ -174,10 +164,12 @@ export default {
             [0, 1],
             [1, 0],
         ],
-        //TODO: attqck pattern
-        attackPattern: [],
-        movementCost: 1,
-        attackCost: 0,
+        attackPattern: [
+            [-1,-1],
+            [-1,1],
+            [1,-1],
+            [1,1]
+        ],
     },
     ant: {
         movementPattern: [
@@ -192,23 +184,19 @@ export default {
         ],
         //TODO: attqck pattern
         attackPattern: [],
-        movementCost: 1,
-        attackCost: 1
     },
     inchworm: {
         movementPattern: [
             [-1, 0],
-            [-2, 0],
             [0, -1],
-            [0, -2],
             [0, 1],
-            [0, 2],
             [1, 0],
-            [2, 0],
         ],
-        //TODO: attqck pattern
-        attackPattern: [],
-        movementCost: 1,
-        attackCost: 1
+        attackPattern: [
+            [-1,-1],
+            [-1,1],
+            [1,-1],
+            [1,1]
+        ],
     },
 }
