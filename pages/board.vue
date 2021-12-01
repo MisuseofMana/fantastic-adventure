@@ -172,6 +172,27 @@ export default {
                 acceptableAttack: false,
             }
             this.resetIcons()
+            this.checkBoard()
+        },
+        checkBoard() {
+            const hasPlayer1 = this.gameGrid.some(row => row.some(cell => cell.belongsTo === 'player1'))
+            const hasPlayer2 = this.gameGrid.some(row => row.some(cell => cell.belongsTo === 'player2'))
+            if (hasPlayer1 && hasPlayer2) {
+                console.log('still active')
+                return
+            }
+            else if (hasPlayer1) {
+                //do a thing for player1
+                this.$router.push({
+                    path: '/winner',
+                })
+            } 
+            else if(hasPlayer2) {
+                //do a thing for player2
+                this.$router.push({
+                    path: '/winner',
+                })
+            }
         },
         findAvailableMovementLocations(movementPattern, row, column) {
             let locationsToActivate = this.findLocations(movementPattern, row, column)
