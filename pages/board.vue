@@ -1,62 +1,79 @@
 <template>
-<v-app>
-    <v-container>
-        <v-main>
-            <v-row justify="center" class="text-center">
-                <v-col cols="12">
-                    <h1>CRITTER CRAWL</h1>
-                </v-col>
-            </v-row>
+    <v-app>
+        <v-container>
+            <v-main>
+                <v-row justify="center" class="text-center">
+                    <v-col cols="12">
+                        <h1>CRITTER CRAWL</h1>
+                    </v-col>
+                </v-row>
 
-            <v-row no-gutters>
-                <v-spacer></v-spacer>
-                <v-col cols="2" class="d-flex justify-end">
-                    <PlayerReadout
-                        playerName="Buggy"
-                        :yourTurn="isPlayerOnesTurn"
-                    />
-                </v-col>
-                <v-col cols="8">
-                        <v-row align="center" justify="center" v-for="(row, rowIndex) in gameGrid" :key="`gridCol${rowIndex}`" no-gutters class="align-center">
+                <v-row no-gutters>
+                    <v-spacer></v-spacer>
+                    <v-col cols="2" class="d-flex justify-end">
+                        <PlayerReadout playerName="Buggy" :yourTurn="isPlayerOnesTurn" />
+                    </v-col>
+                    <v-col cols="8">
+                        <v-row
+                            align="center"
+                            justify="center"
+                            v-for="(row, rowIndex) in gameGrid"
+                            :key="`gridCol${rowIndex}`"
+                            no-gutters
+                            class="align-center"
+                        >
                             <v-col
-                                v-for="(col, colIndex) in gameGrid[rowIndex]" 
-                                :key="`gridRow${colIndex}`" 
+                                v-for="(col, colIndex) in gameGrid[rowIndex]"
+                                :key="`gridRow${colIndex}`"
                                 @click="checkMovement(rowIndex, colIndex)"
                             >
-                                <v-card 
-                                :color="squareColor(col)"
-                                height="42" width="42" :hover="canHover(col)" outlined class="margin-1px"
+                                <v-card
+                                    :color="squareColor(col)"
+                                    height="42"
+                                    width="42"
+                                    :hover="canHover(col)"
+                                    outlined
+                                    class="margin-1px"
                                 >
-                                    <img v-if="(col.name !== '' && !col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.png`)" :alt="col.name"/>
-                                    <img v-if="(col.name !== '' && col.activeSquare)" height="40" width="40" :src="require(`@/assets/images/bugs/${col.name}.gif`)" :alt="col.name"/>
+                                    <img
+                                        v-if="(col.name !== '' && !col.activeSquare)"
+                                        height="40"
+                                        width="40"
+                                        :src="require(`@/assets/images/bugs/${col.name}.png`)"
+                                        :alt="col.name"
+                                    />
+                                    <img
+                                        v-if="(col.name !== '' && col.activeSquare)"
+                                        height="40"
+                                        width="40"
+                                        :src="require(`@/assets/images/bugs/${col.name}.gif`)"
+                                        :alt="col.name"
+                                    />
                                 </v-card>
                             </v-col>
                         </v-row>
-                </v-col>
-                <v-col cols="2">
-                    <PlayerReadout
-                        playerName="King Cricket"
-                        :yourTurn="!isPlayerOnesTurn"
-                    />
-                </v-col>
-                <v-spacer></v-spacer>
-            </v-row>
-        </v-main>
-    </v-container>
-</v-app>
+                    </v-col>
+                    <v-col cols="2">
+                        <PlayerReadout playerName="King Cricket" :yourTurn="!isPlayerOnesTurn" />
+                    </v-col>
+                    <v-spacer></v-spacer>
+                </v-row>
+            </v-main>
+        </v-container>
+    </v-app>
 </template>
 
 <script>
-import all, {boardSetup} from '@/bugTypes/all.js'
+import all, { boardSetup } from '@/bugTypes/all.js'
 
 export default {
-    data(){
+    data() {
         return {
             all,
             isPlayerOnesTurn: true,
-            boardSize:15,
+            boardSize: 15,
             gameGrid: [],
-            registeredSquare:[],
+            registeredSquare: [],
             bugs: [
                 'grub',
                 'ant',
@@ -70,18 +87,19 @@ export default {
         }
     },
     methods: {
-        squareColor(square){
-            if(square.acceptableMovement) return '#09f'
-            else if(square.activeSquare) return '#fd3'
-            else if(square.acceptableAttack) return '#f46'
-            else if(square.name === '') return '#ddd'
-            else if (square.name) return '#fff'
+        squareColor(square) {
+            if (square.acceptableMovement) return '#09f'
+            else if (square.activeSquare) return '#fd3'
+            else if (square.acceptableAttack) return '#f46'
+            else if (square.name === '') return '#ddd'
+            else if (square.belongsTo === 'player1') return '#ffd2d2'
+            else if (square.belongsTo === 'player2') return '#becfff'
         },
         canHover(square) {
-            if(square.acceptableMovement) return true
-            else if(square.activeSquare) return true
-            else if(square.acceptableAttack) return true
-            else if(square.name === '') return false
+            if (square.acceptableMovement) return true
+            else if (square.activeSquare) return true
+            else if (square.acceptableAttack) return true
+            else if (square.name === '') return false
             else if (square.name) return true
         },
         initializeBoard() {
@@ -89,7 +107,7 @@ export default {
                 return row.map((cell, columnIndex) => {
                     if (cell in all) {
                         const name = cell
-                        const {movementPattern, attackPattern} = all[name]
+                        const { movementPattern, attackPattern } = all[name]
                         return {
                             rowIndex,
                             columnIndex,
@@ -114,19 +132,24 @@ export default {
             })
         },
         randomNumber(max) {
-            return Math.floor(Math.random()*max)
+            return Math.floor(Math.random() * max)
         },
-        checkMovement(row, column){
+        checkMovement(row, column) {
             const clickedSquare = this.gameGrid[row][column]
             const { movementPattern, activeSquare, acceptableMovement, acceptableAttack, name } = clickedSquare
             // a non-active square is clicked and is not currently an acceptable movement or attack option
             // it is also not an empty square, (it has a name and living bug)
             // reset the board indicators, hilight a new active square, add new movement indicators
-            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== ''){
+            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '' && (this.currentPlayer.movesLeft >= movementCost || this.currentPlayer.movesLeft >= attackCost)) {
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
                 this.registeredSquare = [row, column]
+                if (this.currentPlayer.movesLeft >= movementCost) {
                     this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
+                }
+                if (this.currentPlayer.movesLeft >= attackCost) {
+                    this.findAvailableAttackLocations(attackPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
+                }
             }
             // a player clicks an already active square, just reset all board indicators
             else if (activeSquare) {
@@ -134,7 +157,7 @@ export default {
             }
             // a square is clicked and is acceptable to be moved to
             // swap the icons between the active and clicked squares
-            else if(acceptableMovement) {
+            else if (acceptableMovement) {
                 this.moveSquare(clickedSquare)
             }
         },
@@ -164,7 +187,7 @@ export default {
                 const calculatedSquare = [row + pair[0], column + pair[1]]
                 const calcRow = calculatedSquare[0]
                 const calcCol = calculatedSquare[1]
-                if((calcRow >= 0 && calcRow < this.boardSize) && (calcCol >= 0 && calcCol < this.boardSize)) {
+                if ((calcRow >= 0 && calcRow < this.boardSize) && (calcCol >= 0 && calcCol < this.boardSize)) {
                     locationsToActivate.push(calculatedSquare)
                 }
             })
@@ -172,7 +195,7 @@ export default {
         },
         setMovementSquares(locationsToActivate) {
             locationsToActivate.forEach(pair => {
-                if(this.gameGrid[pair[0]][pair[1]].name === '') {
+                if (this.gameGrid[pair[0]][pair[1]].name === '') {
                     this.gameGrid[pair[0]][pair[1]].acceptableMovement = true
                 }
             })
@@ -198,6 +221,6 @@ export default {
     flex-grow: 0;
 }
 .margin-1px {
-    margin:1px;
+    margin: 1px;
 }
 </style>
