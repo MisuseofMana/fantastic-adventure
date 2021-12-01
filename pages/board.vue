@@ -10,14 +10,10 @@
 
             <v-row no-gutters>
                 <v-spacer></v-spacer>
-                <v-col cols="1" class="d-flex justify-end">
+                <v-col cols="2" class="d-flex justify-end">
                     <PlayerReadout
-                        :playerName="playerOne.name"
-                        :yourTurn="playerOne.activeTurn"
-                        :chooseTeam="playerOne.isChoosingTeam"
-                        :playerMoves="playerOne.movesLeft"
-                        :teamComposition="playerOne.selectedTeam"
-                        @picked-team="setTeam($event)"
+                        playerName="Buggy"
+                        :yourTurn="isPlayerOnesTurn"
                     />
                 </v-col>
                 <v-col cols="8">
@@ -37,13 +33,10 @@
                             </v-col>
                         </v-row>
                 </v-col>
-                <v-col cols="1">
+                <v-col cols="2">
                     <PlayerReadout
-                        :playerName="playerTwo.name"
-                        :yourTurn="playerTwo.activeTurn"
-                        :chooseTeam="playerTwo.isChoosingTeam"
-                        :playerMoves="playerTwo.movesLeft"
-                        :teamComposition="playerTwo.selectedTeam"
+                        playerName="King Cricket"
+                        :yourTurn="!isPlayerOnesTurn"
                     />
                 </v-col>
                 <v-spacer></v-spacer>
@@ -60,16 +53,7 @@ export default {
     data(){
         return {
             all,
-            playerOne: {
-                name: 'Buggy',
-                activeTurn: true,
-                movesLeft: 5,
-            },
-            playerTwo: {
-                name: 'King Cricket',
-                activeTurn: false,
-                movesLeft: 0,
-            },
+            isPlayerOnesTurn: true,
             boardSize:15,
             gameGrid: [],
             registeredSquare:[],
