@@ -11,7 +11,7 @@
                 <v-row no-gutters>
                     <v-spacer></v-spacer>
                     <v-col cols="2" class="d-flex justify-end">
-                        <PlayerReadout playerName="Buggy" :yourTurn="isPlayerOnesTurn" />
+                        <PlayerReadout playerName="RED" :yourTurn="whosTurn === 'player1'"/>
                     </v-col>
                     <v-col cols="8">
                         <v-row
@@ -54,7 +54,7 @@
                         </v-row>
                     </v-col>
                     <v-col cols="2">
-                        <PlayerReadout playerName="King Cricket" :yourTurn="!isPlayerOnesTurn" />
+                        <PlayerReadout playerName="BLUE" :yourTurn="whosTurn === 'player2'" />
                     </v-col>
                     <v-spacer></v-spacer>
                 </v-row>
@@ -70,7 +70,7 @@ export default {
     data() {
         return {
             all,
-            isPlayerOnesTurn: true,
+            whosTurn: 'player1',
             boardSize: 15,
             gameGrid: [],
             registeredSquare: [],
@@ -100,7 +100,7 @@ export default {
             else if (square.activeSquare) return true
             else if (square.acceptableAttack) return true
             else if (square.name === '') return false
-            else if (square.name) return true
+            else if (square.name && square.belongsTo === this.whosTurn) return true
         },
         initializeBoard() {
             this.gameGrid = boardSetup.map((row, rowIndex) => {
@@ -136,6 +136,7 @@ export default {
         },
         checkMovement(row, column) {
             const clickedSquare = this.gameGrid[row][column]
+            if(!(clickedSquare.belongsTo === null || clickedSquare.belongsTo === this.whosTurn)) return
             const { movementPattern, activeSquare, acceptableMovement, acceptableAttack, name } = clickedSquare
             // a non-active square is clicked and is not currently an acceptable movement or attack option
             // it is also not an empty square, (it has a name and living bug)
