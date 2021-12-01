@@ -5,6 +5,7 @@
                 <v-row justify="center" class="text-center">
                     <v-col cols="12">
                         <h1>CRITTER CRAWL</h1>
+                        <p>A game by <a href="https://www.seanyager.com">Sean Yager</a> and Eli Crow</p>
                     </v-col>
                 </v-row>
 
@@ -192,6 +193,13 @@ export default {
                 this.$router.push({
                     path: '/winner',
                 })
+            }
+
+            if(this.whosTurn === 'player1') {
+                this.whosTurn = 'player2'
+            }
+            else {
+                this.whosTurn = 'player1'
             }
         },
         findAvailableMovementLocations(movementPattern, row, column) {
