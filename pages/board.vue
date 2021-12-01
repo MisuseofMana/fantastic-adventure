@@ -182,14 +182,12 @@ export default {
                 return
             }
             else if (hasPlayer1) {
-                //do a thing for player1
                 this.$router.push({
                     path: '/winner',
                     query: {player: "Player 1"},
                 })
             } 
             else if(hasPlayer2) {
-                //do a thing for player2
                 this.$router.push({
                     path: '/winner',
                     query: {player: "Player 2"},
