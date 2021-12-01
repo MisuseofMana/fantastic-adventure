@@ -97,12 +97,9 @@ export default {
                                 rowIndex: row,
                                 columnIndex: column,
                                 movementPattern:this.all[bugName]?.movementPattern || null,
-                                attackPattern:this.all[bugName]?.attackPattern || null,
                                 name: bugName,
                                 acceptableMovement: false,
                                 acceptableAttack: false,
-                                movementCost: this.all[bugName]?.movementCost || null,
-                                attackCost: this.all[bugName]?.attackCost || null
                             }
                         )
                     }
@@ -112,7 +109,6 @@ export default {
                                 rowIndex: row,
                                 columnIndex: column,
                                 movementPattern: null,
-                                attackPattern: null,
                                 name: '',
                                 acceptableMovement: false,
                                 acceptableAttack: false,
@@ -123,28 +119,20 @@ export default {
             }       
             this.gameGrid = gameGridArray
         },
-        sentenceCase(stringInput) {
-            return stringInput[0].toUpperCase() + stringInput.slice(1)
-        },
         randomNumber(max) {
             return Math.floor(Math.random()*max)
         },
         checkMovement(row, column){
             const clickedSquare = this.gameGrid[row][column]
-            const { movementPattern, attackPattern, activeSquare, acceptableMovement, acceptableAttack, name, movementCost, attackCost } = clickedSquare
+            const { movementPattern, activeSquare, acceptableMovement, acceptableAttack, name } = clickedSquare
             // a non-active square is clicked and is not currently an acceptable movement or attack option
             // it is also not an empty square, (it has a name and living bug)
             // reset the board indicators, hilight a new active square, add new movement indicators
-            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== '' && (this.currentPlayer.movesLeft >= movementCost || this.currentPlayer.movesLeft >= attackCost)){
+            if (!activeSquare && !acceptableMovement && !acceptableAttack && name !== ''){
                 this.resetIcons()
                 this.gameGrid[row][column].activeSquare = true
                 this.registeredSquare = [row, column]
-                if(this.currentPlayer.movesLeft >= movementCost) {
                     this.findAvailableMovementLocations(movementPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
-                }
-                if(this.currentPlayer.movesLeft >= attackCost){
-                    this.findAvailableAttackLocations(attackPattern, clickedSquare.rowIndex, clickedSquare.columnIndex)
-                }
             }
             // a player clicks an already active square, just reset all board indicators
             else if (activeSquare) {
@@ -154,10 +142,6 @@ export default {
             // swap the icons between the active and clicked squares
             else if(acceptableMovement) {
                 this.moveSquare(clickedSquare)
-            }
-            else if(acceptableAttack) {
-                this.squashBug()
-                this.resetIcons()
             }
         },
         moveSquare(clickedSquare) {
@@ -174,36 +158,11 @@ export default {
                 acceptableMovement: false,
                 acceptableAttack: false,
             }
-            this.useMovement(this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]].movementCost)
             this.resetIcons()
-        },
-        squashBug(clickedSquare) {
-            this.gameGrid[clickedSquare.rowIndex][clickedSquare.columnIndex] = {
-                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
-                rowIndex: clickedSquare.rowIndex,
-                columnIndex: clickedSquare.columnIndex
-            }
-            this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]] = {
-                ...this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]],
-                movementPattern: null,
-                attackPattern: null,
-                name: '',
-                acceptableMovement: false,
-                acceptableAttack: false,
-            }
-            this.useMovement(this.gameGrid[this.registeredSquare[0]][this.registeredSquare[1]].attackCost)
-            this.resetIcons()
-        },
-        useMovement(cost){
-            this.currentPlayer.movesLeft -= cost
         },
         findAvailableMovementLocations(movementPattern, row, column) {
             let locationsToActivate = this.findLocations(movementPattern, row, column)
             this.setMovementSquares(locationsToActivate, row, column)
-        },
-        findAvailableAttackLocations(attackPattern, row, column) {
-            let locationsToActivate = this.findLocations(attackPattern, row, column)
-            this.setAttackSquares(locationsToActivate, row, column)
         },
         findLocations(array, row, column) {
             let locationsToActivate = []
@@ -224,27 +183,15 @@ export default {
                 }
             })
         },
-        setAttackSquares(locationsToActivate) {
-            locationsToActivate.forEach(pair => {
-                this.gameGrid[pair[0]][pair[1]].acceptableAttack = true
-            })
-        },
         resetIcons() {
             this.registeredSquare = []
             this.gameGrid.forEach(row => {
                 row.forEach(col => {
                     col.acceptableMovement = false
-                    col.acceptableAttack = false
                     col.activeSquare = false
                 })
             })
         },
-    },
-    computed: {
-        currentPlayer() {
-            if (this.playerOne.activeTurn) return this.playerOne
-            else return this.playerTwo
-        }
     },
     mounted() {
         this.rollTable()
